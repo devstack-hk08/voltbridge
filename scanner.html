@@ -497,7 +497,8 @@ function submitScan() {
     const now = new Date();
 
     const invoice = {
-        invoiceId: "VB-" + now.getTime(),
+        invoiceId: "INV-" + now.getTime() + "-" +
+        Math.random().toString(36).slice(2, 7).toUpperCase(),
         busCode: bus.id,
         busNumber: bus.number,
         depot: bus.depot,
