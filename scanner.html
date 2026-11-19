@@ -1,0 +1,549 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOLTBRIDGE | Scanner Simulator</title>
+
+<style>
+:root {
+    --bg: #f3f6fb;
+    --card: #ffffff;
+    --navy: #142b49;
+    --blue: #246bfd;
+    --text: #172b45;
+    --muted: #718096;
+    --border: #e4eaf2;
+    --green: #16865b;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+}
+header {
+    background: var(--navy);
+    color: white;
+    padding: 17px 6%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+}
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+.brand img { width: 42px; height: 42px; object-fit: contain; }
+.brand small {
+    display: block;
+    font-size: 10px;
+    color: #b8c9df;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+}
+.demo-tag {
+    background: #ffedc2;
+    color: #855500;
+    padding: 7px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 800;
+}
+main {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 0 20px;
+}
+.intro { margin-bottom: 25px; }
+.intro h1 { margin: 0 0 8px; font-size: 30px; }
+.intro p { color: var(--muted); margin: 0; line-height: 1.6; }
+.layout {
+    display: grid;
+    grid-template-columns: 1.2fr .8fr;
+    gap: 22px;
+}
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 17px;
+    padding: 25px;
+    box-shadow: 0 8px 28px rgba(25,50,80,.045);
+}
+.card h2 { margin: 0 0 7px; font-size: 19px; }
+.sub { color: var(--muted); font-size: 13px; margin-bottom: 23px; }
+label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    margin: 17px 0 8px;
+}
+select, input {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fbfcfe;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+}
+select:focus, input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(36,107,253,.09);
+}
+.bus-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    background: #f5f8fd;
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 17px;
+}
+.info-label {
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .7px;
+}
+.info-value { font-size: 14px; font-weight: 750; margin-top: 5px; }
+button {
+    border: 0;
+    cursor: pointer;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 750;
+    padding: 14px 18px;
+}
+.primary {
+    width: 100%;
+    background: var(--blue);
+    color: white;
+    margin-top: 22px;
+    transition: .2s;
+}
+.primary:hover { background: #1457dc; transform: translateY(-1px); }
+.secondary {
+    background: #edf3ff;
+    color: var(--blue);
+    margin-top: 10px;
+}
+.result {
+    display: none;
+    margin-top: 18px;
+    padding: 15px;
+    background: #eaf8f1;
+    border: 1px solid #c8ebd9;
+    color: #126341;
+    border-radius: 11px;
+    font-size: 13px;
+    line-height: 1.7;
+}
+.status {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 800;
+    color: #986000;
+    background: #fff3d9;
+    padding: 5px 9px;
+    border-radius: 20px;
+}
+.preview {
+    background: #f5f8fd;
+    border-radius: 13px;
+    padding: 18px;
+    margin-top: 17px;
+}
+.preview-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+.preview-row:last-child { border: 0; }
+.preview-row span:first-child { color: var(--muted); }
+.preview-row strong { text-align: right; }
+.directory { margin-top: 22px; }
+.directory select { margin-top: 12px; }
+.directory-count { color: var(--muted); font-size: 12px; margin-top: 10px; }
+footer {
+    text-align: center;
+    padding: 25px;
+    color: var(--muted);
+    font-size: 11px;
+}
+@media(max-width:750px) {
+    .layout { grid-template-columns: 1fr; }
+    header { padding: 14px 18px; }
+    .intro h1 { font-size: 25px; }
+    .card { padding: 19px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="brand">
+        <img src="./assets/ksrtc.png" alt="KSRTC">
+        <div>
+            VOLTBRIDGE
+            <small>KSRTC CHARGING MANAGEMENT</small>
+        </div>
+    </div>
+    <div class="demo-tag">DEMO SIMULATOR</div>
+</header>
+
+<main>
+    <section class="intro">
+        <h1>Charging Scan Simulator</h1>
+        <p>Simulate a bus charging scan and demonstrate how charging records reach the respective depot dashboard.</p>
+    </section>
+
+    <div class="layout">
+        <section class="card">
+            <h2>01 / Select bus</h2>
+            <div class="sub">Choose a registered KSRTC bus to simulate scanning.</div>
+
+            <label for="busSelect">BUS REGISTRATION / BUS ID</label>
+            <select id="busSelect">
+                <option value="">Select a bus</option>
+            </select>
+
+            <div class="bus-info">
+                <div>
+                    <div class="info-label">Registration number</div>
+                    <div class="info-value" id="busNumber">—</div>
+                </div>
+                <div>
+                    <div class="info-label">Assigned depot</div>
+                    <div class="info-value" id="busDepot">—</div>
+                </div>
+                <div>
+                    <div class="info-label">Bus ID</div>
+                    <div class="info-value" id="busCode">—</div>
+                </div>
+                <div>
+                    <div class="info-label">Scan status</div>
+                    <div class="info-value"><span class="status">READY TO SCAN</span></div>
+                </div>
+            </div>
+
+            <label for="energy">ENERGY CONSUMED (kWh)</label>
+            <input type="number" id="energy" min="1" max="1000" step="0.1" value="85.5">
+
+            <label for="rate">CHARGING RATE (₹ / kWh)</label>
+            <input type="number" id="rate" min="0.01" step="0.01" value="12">
+
+            <button class="primary" onclick="submitScan()">⚡ Scan & Submit Charging Data</button>
+            <div id="result" class="result"></div>
+        </section>
+
+        <section class="card">
+            <h2>02 / Charging preview</h2>
+            <div class="sub">The generated record will be assigned to the selected bus's depot.</div>
+
+            <div class="preview">
+                <div class="preview-row">
+                    <span>Bus</span><strong id="previewBus">Not selected</strong>
+                </div>
+                <div class="preview-row">
+                    <span>Depot</span><strong id="previewDepot">—</strong>
+                </div>
+                <div class="preview-row">
+                    <span>Energy</span><strong id="previewEnergy">85.5 kWh</strong>
+                </div>
+                <div class="preview-row">
+                    <span>Rate</span><strong id="previewRate">₹12 / kWh</strong>
+                </div>
+                <div class="preview-row">
+                    <span>Total amount</span><strong id="previewTotal">₹1,026.00</strong>
+                </div>
+                <div class="preview-row">
+                    <span>Record status</span><strong>Pending</strong>
+                </div>
+            </div>
+
+            <button class="secondary" onclick="window.location.href='index.html'">
+                Return to VOLTBRIDGE Dashboard
+            </button>
+
+            <div class="directory">
+                <h2>03 / KSRTC depot directory</h2>
+                <div class="sub">Browse depots from northern Kerala to southern Kerala.</div>
+                <select id="depotDirectory">
+                    <option value="">Select a depot to view</option>
+                </select>
+                <div class="directory-count" id="directoryInfo">KSRTC depot directory</div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer>
+    VOLTBRIDGE · Built for KSRTC by MeshMango Technologies<br>
+    Demonstration environment — simulated charging records only
+</footer>
+
+<script>
+/* -------------------------------------------------
+   BUS REGISTRY
+   Add more buses here when required.
+-------------------------------------------------- */
+
+const buses = [
+    {
+        id: "KSRTC-KNR-2048",
+        number: "KL-13-2048",
+        depot: "Kannur"
+    },
+    {
+        id: "KSRTC-EKM-1172",
+        number: "KL-07-1172",
+        depot: "Ernakulam"
+    },
+    {
+        id: "KSRTC-TVM-3021",
+        number: "KL-01-3021",
+        depot: "Thiruvananthapuram"
+    },
+    {
+        id: "KSRTC-KKD-8810",
+        number: "KL-11-8810",
+        depot: "Kozhikode"
+    },
+    {
+        id: "KSRTC-PNR-0450",
+        number: "KL-15-0450",
+        depot: "Payyanur"
+    },
+    {
+        id: "KSRTC-PNR-8810",
+        number: "KL-15-8810",
+        depot: "Payyanur"
+    }
+];
+
+/* -------------------------------------------------
+   KSRTC DEPOT DIRECTORY
+   Names are based on the KSRTC public depot directory.
+-------------------------------------------------- */
+
+const depots = [
+    "Kasaragod",
+    "Kanhangad",
+    "Payyanur",
+    "Kannur",
+    "Thalassery",
+    "Vadakara",
+    "Kozhikode",
+    "Thamarassery",
+    "Thiruvambady",
+    "Thottilpalam",
+    "Kalpetta",
+    "Mananthavady",
+    "Sulthan Bathery",
+    "Malappuram",
+    "Nilambur",
+    "Perinthalmanna",
+    "Ponnani",
+    "Tirur",
+    "Palakkad",
+    "Mannarkkad",
+    "Ottapalam",
+    "Thrissur",
+    "Irinjalakuda",
+    "Kodungalloor",
+    "Guruvayoor",
+    "Chalakudy",
+    "Ernakulam",
+    "Aluva",
+    "Angamaly",
+    "North Paravur",
+    "Moovattupuzha",
+    "Kothamangalam",
+    "Thodupuzha",
+    "Kattappana",
+    "Nedumkandam",
+    "Munnar",
+    "Pala",
+    "Kottayam",
+    "Changanassery",
+    "Vaikom",
+    "Alappuzha",
+    "Cherthala",
+    "Haripad",
+    "Kayamkulam",
+    "Mavelikkara",
+    "Pathanamthitta",
+    "Adoor",
+    "Thiruvalla",
+    "Ranni",
+    "Pamba",
+    "Kollam",
+    "Karunagappally",
+    "Kottarakkara",
+    "Punalur",
+    "Aryankavu",
+    "Chadayamangalam",
+    "Thiruvananthapuram Central",
+    "Thiruvananthapuram City",
+    "Anayara",
+    "Attingal",
+    "Nedumangad",
+    "Kaniyapuram",
+    "Kilimanoor",
+    "Neyyattinkara",
+    "Kattakada",
+    "Poovar",
+    "Vellarada",
+    "Vizhinjam",
+    "Vithura",
+    "Palode",
+    "Vellanad",
+    "Vikas Bhavan",
+    "Peroorkada",
+    "Venjaramood",
+    "Parassala",
+    "Aryanad"
+];
+
+/* -------------------------------------------------
+   INITIALISE PAGE
+-------------------------------------------------- */
+
+const busSelect = document.getElementById("busSelect");
+
+buses.forEach(bus => {
+    const option = document.createElement("option");
+    option.value = bus.id;
+    option.textContent = bus.number + " — " + bus.depot;
+    busSelect.appendChild(option);
+});
+
+const depotSelect = document.getElementById("depotDirectory");
+
+depots.forEach(depot => {
+    const option = document.createElement("option");
+    option.value = depot;
+    option.textContent = depot;
+    depotSelect.appendChild(option);
+});
+
+function selectedBus() {
+    return buses.find(bus => bus.id === busSelect.value);
+}
+
+function updatePreview() {
+    const bus = selectedBus();
+    const energy = Number(document.getElementById("energy").value) || 0;
+    const rate = Number(document.getElementById("rate").value) || 0;
+
+    document.getElementById("busNumber").textContent = bus ? bus.number : "—";
+    document.getElementById("busDepot").textContent = bus ? bus.depot : "—";
+    document.getElementById("busCode").textContent = bus ? bus.id : "—";
+
+    document.getElementById("previewBus").textContent = bus ? bus.number : "Not selected";
+    document.getElementById("previewDepot").textContent = bus ? bus.depot : "—";
+    document.getElementById("previewEnergy").textContent = energy.toFixed(1) + " kWh";
+    document.getElementById("previewRate").textContent = "₹" + rate.toFixed(2) + " / kWh";
+    document.getElementById("previewTotal").textContent =
+        "₹" + (energy * rate).toLocaleString("en-IN", {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+busSelect.addEventListener("change", updatePreview);
+document.getElementById("energy").addEventListener("input", updatePreview);
+document.getElementById("rate").addEventListener("input", updatePreview);
+
+depotSelect.addEventListener("change", function() {
+    document.getElementById("directoryInfo").textContent =
+        this.value ? "Selected KSRTC depot: " + this.value : "KSRTC depot directory";
+});
+
+updatePreview();
+
+/* -------------------------------------------------
+   SCAN AND SUBMIT
+-------------------------------------------------- */
+
+function submitScan() {
+    const bus = selectedBus();
+    const energy = Number(document.getElementById("energy").value);
+    const rate = Number(document.getElementById("rate").value);
+    const result = document.getElementById("result");
+
+    if (!bus) {
+        alert("Please select a bus first.");
+        return;
+    }
+
+    if (!Number.isFinite(energy) || energy <= 0 ||
+        !Number.isFinite(rate) || rate <= 0) {
+        alert("Please enter valid positive energy and rate values.");
+        return;
+    }
+
+    const total = Number((energy * rate).toFixed(2));
+    const now = new Date();
+
+    const invoice = {
+        invoiceId: "VB-" + now.getTime(),
+        busCode: bus.id,
+        busNumber: bus.number,
+        depot: bus.depot,
+        energyConsumed: energy,
+        ratePerUnit: rate,
+        totalCost: total,
+        paymentStatus: "PENDING",
+        status: "PENDING",
+        createdAt: now.toISOString(),
+        date: now.toLocaleDateString("en-IN"),
+        time: now.toLocaleTimeString("en-IN"),
+        source: "SCANNER_SIMULATOR",
+        demo: true
+    };
+
+    try {
+        const storageKey = "voltbridge_invoices";
+        const existing = JSON.parse(localStorage.getItem(storageKey) || "[]");
+
+        if (!Array.isArray(existing)) {
+            throw new Error("The invoice storage format is not an array.");
+        }
+
+        existing.push(invoice);
+        localStorage.setItem(storageKey, JSON.stringify(existing));
+
+        result.style.display = "block";
+        result.innerHTML = `
+            <strong>✓ Scan submitted successfully!</strong><br>
+            Invoice: ${invoice.invoiceId}<br>
+            Bus: ${invoice.busNumber}<br>
+            Assigned depot: <strong>${invoice.depot}</strong><br>
+            Amount: ₹${total.toLocaleString("en-IN", {minimumFractionDigits:2})}<br>
+            Status: Pending
+            <br><br>
+            <strong>Next:</strong> Open the ${invoice.depot} depot dashboard and refresh it to view this record.
+        `;
+
+        result.scrollIntoView({behavior:"smooth", block:"nearest"});
+
+    } catch (error) {
+        console.error(error);
+        alert("Could not save the scan. Check browser storage and the invoice storage format.");
+    }
+}
+</script>
+
+</body>
+</html>
